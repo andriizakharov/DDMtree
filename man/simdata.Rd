@@ -7,15 +7,24 @@
 simdata(n_obs, n_vars, predictors = "factor", output = "cont")
 }
 \arguments{
-\item{output}{}
+\item{n_obs}{number of observations, i.e. number of rows in the dataframe}
+
+\item{n_vars}{number of variables, i.e. total
+number of columns in the dataframe (including the outcome!)}
+
+\item{predictors}{predictor type ("factor" by default) -- TO BE EXTENDED!}
+
+\item{output}{output variable type ("cont" by default) -- TO BE EXTENDED!}
 }
 \value{
 a dataframe with multiple predictors and a single outcome variable
 }
 \description{
-simulate some data to test the tree on
+Simulate some data to test the tree on. The resulting dataframe will have
+multiple factorial predictors (1/0), named "pred1", "pred2", ... and a
+continuous outcome variable named "out".
 }
 \examples{
-dat = simdata(500, 5)
+dat = simdata(n_obs = 500, n_vars = 5)
 head(dat)
 }
