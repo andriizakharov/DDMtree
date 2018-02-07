@@ -16,15 +16,19 @@
 #' @examples
 #' dat = simdata(n_obs = 500, n_vars = 5)
 #' head(dat)
-simdata <- function(n_obs, n_vars, predictors = "factor", output = "cont") {
+simdata <- function(n_obs, n_vars, true_pars, predictors = "factor") {
     mat = matrix(sample(c(1, 0),
-                        size = n_obs * (n_vars+2),
+                        size = n_obs * n_vars,
                         replace = TRUE),
                  nrow = n_obs,
-                 ncol = n_vars + 2)
-    mat[, ncol(mat)-1] = abs(rnorm(n_obs, mean = 500, sd = 100))
+                 ncol = n_vars)
+    rt_dist = rtdists::rdiffusion(n_obs,
+                                  a = true_pars[1],
+                                  v = true_pars[2],
+                                  t0 = true_pars[3],
+                                  z = true_pars[4])
     pred_names = c()
     for (i in 1:(n_vars)) pred_names = c(pred_names, paste0("pred", i))
-    colnames(mat) = c(pred_names, "rt", "response")
-    return(as.data.frame(mat))
+    colnames(mat) = c(pred_names)
+    return(cbind(as.data.frame(mat), rt_dist))
 }
