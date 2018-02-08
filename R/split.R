@@ -28,7 +28,7 @@ split <- function(dat) {
         dev1 = f1$objective
         dev2 = f2$objective
 
-        results[i] = total_dev - dev1 - dev2
+        results[i] = total_dev + dev1 + dev2
     }
     imax = which.max(results)
 
