@@ -31,7 +31,7 @@ fit_DDM <- function(LL_func,
     names(start_pars) <- c("a", "v", "t0", "z")
 
     if (optimizer == "nlminb") {
-       fit <- nlminb(start_pars, LL_func, lower = 0, rt=dat$rt, response=dat$response)
+       fit <- nlminb(start_pars, LL_func, lower = 0, dat = dat)
     }
     # TBD: add other optimizers
     fit
