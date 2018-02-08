@@ -13,10 +13,13 @@
 #' @examples
 #' split1 = split(pred1, out)
 split <- function(dat) {
-    results = vector(NA, length = ncol(dat)-2)
+    results = vector(length = ncol(dat)-2)
 
     f = fit_DDM(getLL_DDM, dat)
     total_dev = f$objective
+    full_node = c(total_dev, f$par)
+    names(full_node)[1] = "dev"
+    tree = list(full_node)
 
     for (i in 1:ncol(dat)-2) {
         sub1 = subset(dat, i == 0, select = c(rt, response))
@@ -28,12 +31,21 @@ split <- function(dat) {
         dev1 = f1$objective
         dev2 = f2$objective
 
+        node1 = c(dev1, f1$par)
+        node2 = c(dev2, f2$par)
+        names(node1)[1] = "dev"
+        names(node2)[1] = "dev"
+
+        tree = list(tree, node1, node2)
+
         results[i] = total_dev + dev1 + dev2
     }
     imax = which.max(results)
 
     subset1 = subset(dat, dat[imax] == 0)
     subset2 = subset(dat, dat[imax] == 1)
+
+    if (nrow(subset1) == 0 | nrow(subset2) == 0) return(tree)
 
     split(subset1)
     split(subset2)
