@@ -30,5 +30,8 @@ simdata <- function(n_obs, n_vars, true_pars, predictors = "factor") {
     pred_names = c()
     for (i in 1:(n_vars)) pred_names = c(pred_names, paste0("pred", i))
     colnames(mat) = c(pred_names)
+    mat = as.data.frame(mat)
+    rt_dist[mat["pred1"] == 1, 1] = rt_dist[mat["pred1"] == 1, 1] + 0.25
+    rt_dist[mat["pred2"] == 1, 1] = rt_dist[mat["pred2"] == 1, 1] + 0.5
     return(cbind(as.data.frame(mat), rt_dist))
 }
