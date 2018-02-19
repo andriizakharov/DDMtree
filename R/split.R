@@ -13,48 +13,62 @@
 #' @examples
 #' split1 = split(pred1, out)
 split <- function(dat) {
-    results = rep(NA, ncol(dat)-2)
-
+    # fit model to full data
     f = fit_DDM(getLL_DDM, dat)
-    # print(f)
+
+    # deviance from the full data
     total_dev = f$objective
-    # full_node = c(total_dev, f$par)
-    # names(full_node)[1] = "dev"
 
+    # keep track of which predictors should be considered for a split
+    # (only those that have both 1 and 0 in them)
+    preds = c()
     for (i in 1:(ncol(dat)-2)) {
-        sub1 = subset(dat, dat[i] == 0, select = c(rt, response))
-        sub2 = subset(dat, dat[i] == 1, select = c(rt, response))
-
-        f1 = fit_DDM(getLL_DDM, sub1)
-        f2 = fit_DDM(getLL_DDM, sub2)
-
-        dev1 = f1$objective
-        dev2 = f2$objective
-
-        # node1 = c(dev1, f1$par)
-        # node2 = c(dev2, f2$par)
-        # names(node1)[1] = "dev"
-        # names(node2)[1] = "dev"
-
-        # tree = list(tree, node1, node2)
-
-        results[i] = total_dev + dev1 + dev2
+        if (length(unique(dat[,i])) == 2) {
+            preds = c(preds, i)
+        }
     }
-    imax = which.max(results)
-
-    subset1 = subset(dat, dat[imax] == 0)
-    subset2 = subset(dat, dat[imax] == 1)
-
-    if (nrow(subset1) == 0 | nrow(subset2) == 0) {
-        tree <- list(params = 0, model = f)
+    print(preds)
+    # if there are no such candidate predictors left, terminate splitting
+    if (is.null(preds)) {
+        tree <- list(params = 0, lr = 0, N = 0, model = f)
         tree$caption <- "TERMINAL"
         return(tree)
     }
 
-    tree <- list(params = f$par, lr = results[imax], model = f)
+    # vector to store LR results of candidate splits
+    results = rep(NA, length(preds))
+
+    for (i in preds) {
+
+        # make a candidate split
+        sub1 = subset(dat, dat[,i] == 0, select = c(rt, response))
+        sub2 = subset(dat, dat[,i] == 1, select = c(rt, response))
+
+        # fit models to both subsets of a split
+        f1 = fit_DDM(getLL_DDM, sub1)
+        f2 = fit_DDM(getLL_DDM, sub2)
+
+        # get deviance for both subsets
+        dev1 = f1$objective
+        dev2 = f2$objective
+
+        # calculate LR for this candidate split
+        results[i] = total_dev + dev1 + dev2
+    }
+
+    # get the max LR for all candidate splits -> find the best split
+    imax = which.max(results)
+
+    # carry out the best split
+    subset1 = subset(dat, dat[,imax] == 0)
+    subset2 = subset(dat, dat[,imax] == 1)
+
+    # construct a SEMtree class to store the data
+    tree <- list(params = f$par, lr = results[imax], N = nrow(dat), model = f)
     class(tree) <- "semtree"
     tree$caption <- names(dat[imax])
 
+    # continue splitting recursively
     tree$left_child <- split(subset1)
     tree$right_child <- split(subset2)
 
