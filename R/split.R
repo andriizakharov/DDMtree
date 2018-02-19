@@ -36,7 +36,7 @@ split <- function(dat) {
     }
 
     # vector to store LR results of candidate splits
-    results = rep(NA, length(preds))
+    results = rep(NA, ncol(dat)-2)
 
     for (i in preds) {
 
