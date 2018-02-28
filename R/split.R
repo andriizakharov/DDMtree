@@ -64,10 +64,11 @@ split <- function(dat, left = 1) {
     subset2 = subset(dat, dat[,imax] == 1)
 
     # construct a SEMtree class to store the data
-    tree <- list(node_id = NA, params = NA, param_names = "NA", lr = results[imax], N = nrow(dat), df = 1, model = f)
+    tree <- list(node_id = n0de_id_c0unt, params = f$par, param_names = names(f$par), lr = results[imax], N = nrow(dat), df = 1, model = f)
     class(tree) <- "semtree"
     if (left == 1) tree$caption <- paste(names(dat[imax]), "== 0")
     else tree$caption <- paste(names(dat[imax]), "== 1")
+    n0de_id_c0unt <<- n0de_id_c0unt + 1
 
     # continue splitting recursively
     tree$left_child <- split(subset1)
@@ -75,5 +76,3 @@ split <- function(dat, left = 1) {
 
     return(tree)
 }
-
-# node_id als global variable counter und dann immer +1 für jeden weiteren Node.
